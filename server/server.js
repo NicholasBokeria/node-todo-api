@@ -20,6 +20,12 @@ app.post('/todos', (req, res) => {
         .catch(err => res.send(err))
 })
 
+app.get('/todos', (req, res) => {
+    Todo.find()
+        .then(todos => res.send({ todos }))
+        .catch(err => res.send(err))
+})
+
 app.listen(3000, () => {
     console.log('Server started on port 3000')
 })
