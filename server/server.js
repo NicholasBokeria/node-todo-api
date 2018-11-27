@@ -23,6 +23,8 @@ app.post('/todos', (req, res) => {
         .catch(err => res.send(err))
 })
 
+app.get('/', (req, res) => {res.send('Send nudes babe')})
+
 app.get('/todos', (req, res) => {
     Todo.find()
         .then(todos => res.send({ todos }))
