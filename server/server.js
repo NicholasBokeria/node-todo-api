@@ -7,6 +7,8 @@ const { Todo } = require('./models/todos')
 const { User } = require('./models/user')
 
 const app = express();
+const port = process.env.PORT || 3000;
+
 
 app.use(bodyParser.json())
 //CRUD = Create Read Update Delete
@@ -42,8 +44,8 @@ app.get('/todos/:id', (req, res) => {
         .catch(err => res.send(err))
 })
 
-app.listen(3000, () => {
-    console.log('Server started on port 3000')
+app.listen(port, () => {
+    console.log(`Server started on port ${port}`)
 })
 
 module.exports = { app }
