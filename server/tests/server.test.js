@@ -138,3 +138,28 @@ describe('DELETE /todos/:id', () => {
     done()
     })
 })
+
+// describe('PATH /todos/:id', () => {
+//     it('should update a todo', done => {
+//         let id = todos[0]._id.toHexString()
+
+//         request(app)
+//             .patch(`/todos/${id}`)
+//             .send({
+//                 completed: true,
+//                 text: 'Nah..'
+//             })
+//             .expect(200)
+//             .expect(res => {
+//                 expect(res.body.todo.text).toBe('Nah..')
+//                 expect(res.body.todo.completed).toBe(true)
+//                 expect(res.body.todo.completedAt).toBeA('number')
+//             })
+//             .end(done)
+//             done()
+//     })
+
+//     it('should clear completed at when todo is not completed', done => {
+
+//     })
+// })
