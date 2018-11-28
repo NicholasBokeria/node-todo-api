@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const express = require('express')
 const bodyParser = require('body-parser')
 
@@ -50,8 +52,27 @@ app.delete('/todos/:id', (req, res) => {
     let id = req.params.id;
 
     Todo.findByIdAndRemove(id)
-        .then(todo => res.send({todo}))
+        .then(todo => res.send({ todo }))
         .catch(err => console.log(err))
+})
+
+app.patch('/todos/:id', (req, res) => {
+    let id = req.params.id
+    let body = _.pick(req.body, ['text', 'completed'])
+
+    if (!ObjectID.isValid(id)) res.send(404)
+
+    if (body.completed) {
+        body.completedAt = new Date().getDate()
+    } else { body.completedAt = null }
+
+    Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
+        .then(todo => {
+            if (!todo) res.status(404).send()
+
+            res.send({ todo })
+        })
+        .catch(err => res.send(404))
 })
 
 app.listen(port, () => {
