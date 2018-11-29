@@ -9,10 +9,13 @@ const { mongoose } = require('./db/mongoose')
 const { ObjectID } = require('mongodb')
 const { Todo } = require('./models/todos')
 const { User } = require('./models/user')
+const { authenticate } = require('../middleware/authentication')
 
 const app = express();
 const port = process.env.PORT;
 
+mongoose.set('useCreateIndex', true);
+mongoose.set('useNewUrlParser', true)
 
 app.use(bodyParser.json())
 
@@ -26,16 +29,6 @@ app.post('/todos', (req, res) => {
     todo.save()
         .then(doc => res.send(doc))
         .catch(err => res.send(err))
-})
-
-app.post('/users', (req, res) => {
-    let body = _.pick(req.body, ['email', 'password'])
-    let user = new User(body)
-
-    user.save()
-        .then(() => user.generateAuthToken())
-        .then(token => res.header('x-auth', token).send(user))
-        .catch(err => res.send(404))
 })
 
 app.get('/', (req, res) => { res.send('Send nudes babe') })
@@ -86,6 +79,26 @@ app.patch('/todos/:id', (req, res) => {
             res.send({ todo })
         })
         .catch(err => res.send(404))
+})
+
+// POST /users
+
+app.post('/users', (req, res) => {
+    let body = _.pick(req.body, ['email', 'password'])
+    let user = new User(body)
+
+    user.save()
+        .then(() => user.generateAuthToken())
+        .then(token => {
+            res.header('x-auth', token).send(user)
+        })
+        .catch(err => {
+            res.status(404).send()
+        })
+})
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user)
 })
 
 app.listen(port, () => {
