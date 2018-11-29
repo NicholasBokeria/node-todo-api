@@ -15,6 +15,7 @@ const port = process.env.PORT;
 
 
 app.use(bodyParser.json())
+
 //CRUD = Create Read Update Delete
 
 app.post('/todos', (req, res) => {
@@ -25,6 +26,16 @@ app.post('/todos', (req, res) => {
     todo.save()
         .then(doc => res.send(doc))
         .catch(err => res.send(err))
+})
+
+app.post('/users', (req, res) => {
+    let body = _.pick(req.body, ['email', 'password'])
+    let user = new User(body)
+
+    user.save()
+        .then(() => user.generateAuthToken())
+        .then(token => res.header('x-auth', token).send(user))
+        .catch(err => res.send(404))
 })
 
 app.get('/', (req, res) => { res.send('Send nudes babe') })
