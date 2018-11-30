@@ -1,25 +1,14 @@
 const expect = require('expect')
 const request = require('supertest')
 const { ObjectID } = require('mongodb')
-
+const { todos, populateTodos, users, populateUsers } = require('./seed/seed')
 
 const { app } = require('../server')
 const { Todo } = require('../models/todos')
+const { User } = require('../models/user')
 
-const todos = [{
-    _id: new ObjectID(),
-    text: 'First test todo'
-}, {
-    _id: new ObjectID(),
-    text: 'Second test todo'
-}]
-
-beforeEach((done) => {
-    Todo.remove({}).then(() => {
-        return Todo.insertMany(todos)
-    }).then(() => done())
-    app.close
-})
+beforeEach(populateUsers)
+beforeEach(populateTodos)
 
 describe('POST /todos', () => {
     it('should created a new todo', done => {
@@ -73,7 +62,7 @@ describe(('GET /todos'), () => {
 })
 
 describe(('GET /todos/:id'), () => {
-    it('should return todo doc', done => { 
+    it('should return todo doc', done => {
         request(app.listen())
             .get(`/todos/${todos[0]._id.toHexString()}`)
             .expect(200)
@@ -112,30 +101,30 @@ describe('DELETE /todos/:id', () => {
                 expect(res.body.todo._id).toBe(hexId)
             })
             .end((err, res) => {
-                if(err) throw new Error('Unexpected error')
+                if (err) throw new Error('Unexpected error')
 
                 Todo.findById(hexId).then(todo => {
                     expect(todo).toNotExist();
                     done();
-                }).catch(err => console.log(err))
+                }).catch(err => { return })
             })
-            done()
+        done()
     })
 
     it('should remove 404 if todo not found', done => {
         request(app)
-        .delete('/todos/123abc')
-        .expect(400)
-        .end(done)
-    done()
+            .delete('/todos/123abc')
+            .expect(400)
+            .end(done)
+        done()
     })
 
     it('should return 404 if object id is invalid', done => {
         request(app)
-        .delete('/todos/123abc')
-        .expect(400)
-        .end(done)
-    done()
+            .delete('/todos/123abc')
+            .expect(400)
+            .end(done)
+        done()
     })
 })
 
@@ -163,3 +152,75 @@ describe('DELETE /todos/:id', () => {
 
 //     })
 // })
+
+//USERS
+describe('GET /todos/me', () => {
+    it('should return user if authenticated', (done) => {
+        request(app)
+            .get('/users/me')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body._id).toBe(users[0]._id.toHexString())
+                expect(res.body.email).toBe(users[0].email)
+            })
+            .end(done())
+    })
+
+    // it('Should return 401 if not autheticated', (done) => {
+    //     request(app)
+    //         .get('/users/me')
+    //         .expect(401)
+    //         .expect(res => {
+    //             expect(res.body).toEqual({})
+    //         })
+    //         .end(done())
+    // })
+})
+
+describe('POST /users', () => {
+    it('should create a user', done => {
+        let email = 'example@mail.ru',
+            password = 'haha'
+
+        request(app)
+            .post(`/users`)
+            .send({ email, password })
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toExist()
+                expect(res.body._id).toExist()
+                expect(res.body.email).toExist()
+            })
+            .end(err => {
+                if (err) return done(err)
+
+                User.findOne({email}).then(user => {
+                    expect(user).toExist()
+                    expect(user.password).toNotBe(password)
+                })
+            })
+    })
+
+    it('should return validation errors', done => {
+        request(app)
+            .post('/users')
+            .send({
+                email: 'and',
+                password: '12'
+            })
+            .expect(400)
+            .end(done())
+    })
+
+    it('should not create a user if email in use', done => {
+        request(app)
+            .post('/users')
+            .send({
+                email: users[0].email,
+                password: '12333333'
+            })
+            .expect(400)
+            .end(done())
+    })
+})
