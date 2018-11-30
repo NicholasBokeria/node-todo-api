@@ -9,7 +9,7 @@ let authenticate = (req, res, next) => {
                 return Promise.reject()
             }
             req.user = user
-            req.token = token
+            //req.token = token
             next()
         }).catch(err => {
             res.status(401).send()
