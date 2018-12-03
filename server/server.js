@@ -37,51 +37,54 @@ app.get('/todos', authenticate, (req, res) => {
     Todo.find({
         _creator: req.user._id
     })
-        .then(todos => res.send({ todos }))
+        .then(todos => { 
+            //console.log(req) from middleware
+            res.send({ todos })  
+        })
         .catch(err => res.send(err))
 })
 
 app.get('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;
-  
-    if (!ObjectID.isValid(id)) {
-      return res.status(404).send();
-    }
-  
-    Todo.findOne({
-      _id: id,
-      _creator: req.user._id
-    }).then((todo) => {
-      if (!todo) {
-        return res.status(404).send();
-      }
-  
-      res.send({todo});
-    }).catch((e) => {
-      res.status(400).send();
-    });
-  });
 
-  app.delete('/todos/:id', authenticate, (req, res) => {
-    var id = req.params.id;
-  
     if (!ObjectID.isValid(id)) {
-      return res.status(404).send();
-    }
-  
-    Todo.findOneAndRemove({
-      _id: id,
-      _creator: req.user._id
-    }).then((todo) => {
-      if (!todo) {
         return res.status(404).send();
-      }
-  
-      res.send({todo});
+    }
+
+    Todo.findOne({
+        _id: id,
+        _creator: req.user._id
+    }).then((todo) => {
+        if (!todo) {
+            return res.status(404).send();
+        }
+
+        res.send({ todo });
     }).catch((e) => {
-      res.status(400).send();
+        res.status(400).send();
     });
-  });
+});
+
+app.delete('/todos/:id', authenticate, (req, res) => {
+    var id = req.params.id;
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user._id
+    }).then((todo) => {
+        if (!todo) {
+            return res.status(404).send();
+        }
+
+        res.send({ todo });
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
 
 app.patch('/todos/:id', authenticate, (req, res) => {
     let id = req.params.id

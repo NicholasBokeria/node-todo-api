@@ -23,7 +23,7 @@ const users = [{
     password: '123abc',
     tokens: [{
         acces: 'auth',
-        token: jwt.sign({_id: userOneId, acces: 'auth'},'abc123').toString()
+        token: jwt.sign({_id: userOneId, acces: 'auth'}, process.env.JWT_SECRET).toString()
     }]
 }, {
     _id: new ObjectID(),
