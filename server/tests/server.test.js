@@ -16,6 +16,7 @@ describe('POST /todos', () => {
 
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens.token)
             .send({ text })
             .expect(200)
             .expect((res) => {
@@ -32,30 +33,32 @@ describe('POST /todos', () => {
             })
     })
 
-    // it('Should not create todo with invalid body data', done => {
-    //     request(app)
-    //         .post('/todos')
-    //         .send({})
-    //         .expect(400)
-    //         .end((err, res) => {
-    //             if (err) { done(err) }
+    it('Should not create todo with invalid body data', done => {
+        request(app)
+            .post('/todos')
+            .set('x-auth', users[0].tokens.token)
+            .send({})
+            .expect(400)
+            .end((err, res) => {
+                if (err) { done(err) }
 
-    //             Todo.find().then(todos => {
-    //                 expect(todos.length).toBe(0)
+                Todo.find().then(todos => {
+                    expect(todos.length).toBe(0)
 
-    //                 //done()
-    //             }).catch(err => done(err))
-    //         })
-    // })
+                    //done()
+                }).catch(err => done(err))
+            })
+    })
 })
 
 describe(('GET /todos'), () => {
     it('Should get all todos', done => {
         request(app.listen())
             .get('/todos')
+            .set('x-auth', users[0].tokens.token)
             .expect(200)
             .expect(res => {
-                expect(res.body.todos.length).toBe(2)
+                expect(res.body.todos.length).toBe(1)
             })
             .end(done)
     })
