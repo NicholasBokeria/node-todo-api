@@ -1,11 +1,8 @@
-const mongoose = require('mongoose')
-const validator = require('validator')
-const jwt = require('jsonwebtoken')
-const _ = require('lodash')
-const bcrypt = require('bcryptjs')
-
-mongoose.set('useCreateIndex', true);
-mongoose.set('useNewUrlParser', true)
+const mongoose = require('mongoose');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 let UserSchema = new mongoose.Schema({
     email: {
@@ -34,7 +31,7 @@ let UserSchema = new mongoose.Schema({
             required: false
         }
     }]
-})
+});
 
 UserSchema.methods.toJSON = function () {
     let user = this;
