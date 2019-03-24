@@ -19,18 +19,19 @@ router.post('/create', async (req, res) => {
         const token = await user.generateAuthToken();
         res.header('x-auth', token).send(user);
     } catch (e) {
-        res.status(404).send();
+        res.status(400).send();
     }
 })
 
 router.post('/login', async (req, res) => {
     try {
         const body = _.pick(req.body, ['email', 'password']);
-        const user = User.findByCredentials(body.email, body.password);
+        const user = await User.findByCredentials(body.email, body.password);
         const token = await user.generateAuthToken();
-
+        
         res.header('x-auth', token).send(user);
     } catch (error) {
+        console.log(error)
         res.status(400).send();
     }
 })
